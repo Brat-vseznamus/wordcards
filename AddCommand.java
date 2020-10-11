@@ -1,4 +1,6 @@
-public class AddCommand extends AbstractCommand { 
+import commands.AbstractCommand;
+
+public class AddCommand extends AbstractCommand {
     private String word, translation;
     public AddCommand() {
         super(1);

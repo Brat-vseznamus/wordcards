@@ -1,3 +1,4 @@
+package commands;
 public class TestCommand extends AbstractCommand{
     private int numberOfTest = 1;
     public TestCommand() {

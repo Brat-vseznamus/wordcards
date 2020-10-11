@@ -12,27 +12,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Set;
+import commands.*;
 
 public class WordCards {
     public static int numberOfBuckets = 10;
     public List<WordBucket> buckets;
+    private Scanner userScanner = new Scanner(System.in);
 
     static String tab = "   ";
+    static String defTab = "\n" + tab.repeat(2) + "-- ";
     static File input = new File("/home/fedor/Documents/sources/word_cards", "words.txt");
 
-    static Map<String, Integer> firstWordMap = new HashMap<>(Map.of("exit", 3, "help", 2, "add", 1, "test", 0));
+    static Map<String, Integer> firstWordMap = new HashMap<>(
+            Map.of("addall", 4, "exit", 3, "help", 2, "add", 1, "test", 0));
 
-    static Map<String, String> descriptionMap = new LinkedHashMap<>(Map.of(
-        "help", 
-        "\n" + tab.repeat(2) + "show realized functions",
-        "add", 
-        " <phrase> - <translated phrase>" + 
-        "\n" + tab.repeat(2) + "add your phrases and words",
-        "test", 
-        "\n" + tab.repeat(2) + "activate tests",
-        "exit",
-        "\n" + tab.repeat(2) + "end session and exit from program"
-    ));
+    static Map<String, Set<String>> descriptionMap = new LinkedHashMap<>(
+            Map.of("help", Set.of(defTab + "show realized functions"), "add",
+                    Set.of(" <phrase> - <translated phrase>" + defTab + "add your phrases and words"), "addAll",
+                    Set.of(" <number of phrases>" + defTab + "add all phraeses and words", defTab + "same as add"),
+                    "test", Set.of(" <number of tests>" + defTab + "activate tests"), "exit",
+                    Set.of(defTab + "end session and exit from program")));
 
     void fillTable(File file) throws FileNotFoundException {
         buckets = new ArrayList<>();
@@ -40,7 +40,7 @@ public class WordCards {
             buckets.add(new WordBucket(i));
         }
         Scanner bucketsScanner = new Scanner(file);
-        while(bucketsScanner.hasNextLine()) {
+        while (bucketsScanner.hasNextLine()) {
             String tmp = bucketsScanner.nextLine();
             Scanner lineScanner = new Scanner(tmp);
             String token = lineScanner.next();
@@ -59,9 +59,7 @@ public class WordCards {
                 token = lineScanner.next();
             }
             bucket = lineScanner.nextInt();
-            buckets.get(bucket).put(
-                    w1.toString(), 
-                    w2.toString());
+            buckets.get(bucket).put(w1.toString(), w2.toString());
             lineScanner.close();
         }
         bucketsScanner.close();
@@ -69,7 +67,7 @@ public class WordCards {
 
     static int bucketNumber(double p) {
         double pn = p * (Math.exp(10 * Math.log(1.5)) - 1) + 1;
-        return (int)(Math.log(pn) / Math.log(1.5));
+        return (int) (Math.log(pn) / Math.log(1.5));
     }
 
     static Command add(Scanner scanner) {
@@ -95,16 +93,14 @@ public class WordCards {
             token = scanner.next();
         }
         scanner.close();
-        return new AddCommand(
-            fisrtWords.toString().toLowerCase(), 
-            secondWords.toString().toLowerCase());
+        return new AddCommand(fisrtWords.toString().toLowerCase(), secondWords.toString().toLowerCase());
     }
 
     static Command parseCommand(String source) {
         Scanner scanner = new Scanner(source);
         String w1 = scanner.next().toLowerCase();
         if (firstWordMap.containsKey(w1)) {
-            switch(firstWordMap.get(w1)) {
+            switch (firstWordMap.get(w1)) {
                 case 0: {
                     if (!scanner.hasNext()) {
                         scanner.close();
@@ -119,7 +115,7 @@ public class WordCards {
                     return new TestCommand(ntest);
                 }
                 case 1: {
-                    return add(scanner);   
+                    return add(scanner);
                 }
                 case 2: {
                     scanner.close();
@@ -128,6 +124,15 @@ public class WordCards {
                 case 3: {
                     scanner.close();
                     return new ExitCommand();
+                }
+                case 4: {
+                    if (!scanner.hasNext()) {
+                        scanner.close();
+                        return new AddAllCommand();
+                    }
+                    int nphrases = scanner.nextInt();
+                    scanner.close();
+                    return new AddAllCommand(nphrases);
                 }
                 default: {
                     scanner.close();
@@ -141,35 +146,31 @@ public class WordCards {
     }
 
     void runCommand(Command cmd) throws UnsupportedEncodingException, FileNotFoundException {
-        switch(cmd.getType()) {
+        switch (cmd.getType()) {
             case 0: {
-                int ntest = ((TestCommand)cmd).getNumberOfTest();
-                test(ntest); break;
+                int ntest = ((TestCommand) cmd).getNumberOfTest();
+                test(ntest);
+                break;
             }
             case 1: {
-                AddCommand addcmd = (AddCommand)cmd;
-                buckets.get(numberOfBuckets - 1)
-                    .put(addcmd.getPair());
+                AddCommand addcmd = (AddCommand) cmd;
+                buckets.get(numberOfBuckets - 1).put(addcmd.getPair());
                 break;
             }
             case 2: {
-                System.out.println("usage: ");
+                System.out.println("usage: \n");
                 for (String comd : descriptionMap.keySet()) {
-                    System.out.print(comd);
-                    System.out.println(descriptionMap.get(comd));
+                    for (String desc : descriptionMap.get(comd)) {
+                        System.out.print(comd);
+                        System.out.println(desc);
+                    }
                 }
                 break;
             }
             case 3: {
                 System.out.println("end session.");
                 PrintWriter out = new PrintWriter(
-                    new BufferedWriter(
-                        new OutputStreamWriter(
-                            new FileOutputStream(input),
-                            "UTF-8"
-                        )
-                    )
-                );
+                        new BufferedWriter(new OutputStreamWriter(new FileOutputStream(input), "UTF-8")));
                 for (int i = 0; i < numberOfBuckets; i++) {
                     for (Translation words : buckets.get(i).words) {
                         for (String translation : words.translations) {
@@ -178,11 +179,27 @@ public class WordCards {
                     }
                 }
                 out.close();
+                userScanner.close();
+                break;
+            }
+            case 4: {
+                AddAllCommand addcmd = (AddAllCommand) cmd;
+                int n = addcmd.getNumberOfPhrases();
+                while (n-- > 0) {
+                    Scanner linesc = new Scanner(userScanner.nextLine());
+                    Command cmd2 = add(linesc);
+                    if (cmd2.getType() == -1) {
+                        runCommand(cmd2);
+                        break;
+                    } else {
+                        buckets.get(numberOfBuckets - 1).put(((AddCommand) cmd2).getPair());
+                    }
+                }
                 break;
             }
             case -1: {
-                FailCommand failcmd = (FailCommand)cmd;
-                System.out.println(failcmd.getMessage());
+                FailCommand failcmd = (FailCommand) cmd;
+                System.out.println("command fail: " + failcmd.getMessage());
                 break;
             }
         }
@@ -190,7 +207,6 @@ public class WordCards {
 
     void test(int ntest) {
         Random r = new Random();
-        Scanner sc = new Scanner(System.in);
         while (ntest-- > 0) {
             int n = bucketNumber(r.nextDouble());
             while (buckets.get(n).isEmpty()) {
@@ -198,37 +214,44 @@ public class WordCards {
             }
             Translation tr = buckets.get(n).randomPair();
             System.out.print("? " + tr.word + " - ");
-            String answer = sc.nextLine();
+            String answer = userScanner.nextLine();
             if (tr.checkAnswer(answer)) {
-                System.out.println("Right!");
+                System.out.println("\u001B[32mRight!\u001B[0m");
                 if (n > 0) {
                     buckets.get(n).delete(tr);
                     buckets.get(n - 1).put(tr);
                 }
             } else {
-                System.out.println("Wrong!");
+                System.out.println("\u001B[31mWrong!\u001B[0m");
+                System.out.println("Right answer: " + tr);
                 buckets.get(n).delete(tr);
                 buckets.get(numberOfBuckets - 1).put(tr);
             }
         }
-        sc.close();
     };
+
+    private Command readCommand() {
+        Command cmd;
+        if (userScanner.hasNext()) {
+            cmd = parseCommand(userScanner.nextLine());
+        } else {
+            cmd = new ExitCommand();
+        }
+        return cmd;
+    }
 
     public static void main(String[] args) throws UnsupportedEncodingException, FileNotFoundException {
         WordCards wc = new WordCards();
         wc.fillTable(input);
-        System.out.print(wc);
-        Scanner userScanner = new Scanner(System.in);
+        // System.out.print(wc);
         System.out.print("> ");
-        String task = userScanner.nextLine();
-        Command cmd = parseCommand(task);
+        Command cmd = wc.readCommand();
         while (cmd.getType() != 3) {
             wc.runCommand(cmd);
             System.out.print("> ");
-            cmd = parseCommand(userScanner.nextLine());
+            cmd = wc.readCommand();
         }
         wc.runCommand(cmd);
-        userScanner.close();
     }
 
     @Override
@@ -239,5 +262,13 @@ public class WordCards {
         }
         return str.toString();
     }
-    
+
+    public WordCards(Scanner userScanner) {
+        this.userScanner = userScanner;
+    }
+
+    public WordCards() {
+        this.userScanner = new Scanner(System.in);
+    }
+
 }

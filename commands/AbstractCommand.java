@@ -1,3 +1,4 @@
+package commands;
 public abstract class AbstractCommand implements Command{
     private int type;
     public AbstractCommand(int type) {
