@@ -1,6 +1,3 @@
-a b c | a s | 2
-suka | a s | 2
-a b c | ass | 2
-a sc | a s | 2
-as c | a ss | 2
-a bc | ass | 2
+void | пустота | 8
+pull | вытянуть | 8
+get | взять | 9

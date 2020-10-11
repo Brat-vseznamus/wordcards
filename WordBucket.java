@@ -37,6 +37,10 @@ public class WordBucket {
         words.add(new Translation(word, translation));
     }
 
+    public boolean isEmpty() {
+        return words.size() == 0;
+    }
+
     public void put(Translation wp) {
         words.add(wp);
     }
