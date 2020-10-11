@@ -1,3 +1,3 @@
-javac commands/*.java
-javac *.java
-java WordCards
+javac javaFiles/commands/*.java
+javac javaFiles/*.java
+java javaFiles.WordCards

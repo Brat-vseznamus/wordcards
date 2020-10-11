@@ -1,9 +1,9 @@
 void | пустота | 3
-take | взять | 6
-pull | вытянуть | 6
 get | получить | 6
-theif | вор | 6
 borrower | заемщик | 6
+pull | вытянуть | 6
+take | взять | 6
+theif | вор | 6
+brazen | наглый | 7
 literally | точно | 9
 literally | буквально | 9
-brazen | наглый | 9

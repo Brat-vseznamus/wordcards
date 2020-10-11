@@ -1,4 +1,4 @@
-package commands;
+package javaFiles.commands;
 public class FailCommand extends AbstractCommand{
     private String message;
     public FailCommand() {

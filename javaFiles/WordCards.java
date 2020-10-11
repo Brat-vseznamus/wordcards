@@ -1,3 +1,4 @@
+package javaFiles;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,11 +10,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
-import commands.*;
+import javaFiles.commands.*;
 
 public class WordCards {
     public static int numberOfBuckets = 10;
@@ -22,7 +24,7 @@ public class WordCards {
 
     static String tab = "   ";
     static String defTab = "\n" + tab.repeat(2) + "-- ";
-    static File input = new File("/home/fedor/Documents/sources/word_cards", "words.txt");
+    static File input = new File("/home/fedor/Documents/sources/word_cards/resources", "words.txt");
 
     static Map<String, Integer> firstWordMap = new HashMap<>(
             Map.of("addall", 4, "exit", 3, "help", 2, "add", 1, "test", 0));

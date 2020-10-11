@@ -1,4 +1,5 @@
-import commands.AbstractCommand;
+package javaFiles;
+import javaFiles.commands.AbstractCommand;
 
 public class AddCommand extends AbstractCommand {
     private String word, translation;

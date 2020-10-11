@@ -1,4 +1,4 @@
-package commands;
+package javaFiles.commands;
 public class AddAllCommand extends AbstractCommand {
     private int numberOfPhrases;
     public AddAllCommand() {
