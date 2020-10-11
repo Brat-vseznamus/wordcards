@@ -1,5 +1,6 @@
 package javaFiles;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 public class Translation {
@@ -36,6 +37,26 @@ public class Translation {
         return a == b ? 0 : 1;
     }
 
+    public boolean checkAnswer(String answer, int mode) {
+        if (mode == 0) {
+            return checkAnswer(answer);
+        } else {
+            return calculateRadius(answer, word) <= 2;
+        }
+    }
+
+    public String randomTranslation() {
+        Random r = new Random();
+        int x = r.nextInt(translations.size());
+        int i = 0;
+        for (String tr : translations) {
+            if (i++ == x) {
+                return tr;
+            }
+        }
+        return null;
+    }
+    
     public boolean checkAnswer(String answer) {
         for (String trans : translations) {
             int r = calculateRadius(answer, trans);

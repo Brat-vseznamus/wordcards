@@ -27,14 +27,34 @@ public class WordCards {
     static File input = new File("/home/fedor/Documents/sources/word_cards/resources", "words.txt");
 
     static Map<String, Integer> firstWordMap = new HashMap<>(
-            Map.of("addall", 4, "exit", 3, "help", 2, "add", 1, "test", 0));
+            Map.of(
+                "addall", 4, 
+                "exit", 3, 
+                "help", 2, 
+                "add", 1, 
+                "test", 0,
+                "show", 5
+    ));
 
     static Map<String, Set<String>> descriptionMap = new LinkedHashMap<>(
-            Map.of("help", Set.of(defTab + "show realized functions"), "add",
-                    Set.of(" <phrase> - <translated phrase>" + defTab + "add your phrases and words"), "addAll",
-                    Set.of(" <number of phrases>" + defTab + "add all phraeses and words", defTab + "same as add"),
-                    "test", Set.of(" <number of tests>" + defTab + "activate tests"), "exit",
-                    Set.of(defTab + "end session and exit from program")));
+            Map.of(
+                "help", 
+                Set.of(defTab + "show realized functions"), 
+                "add",
+                Set.of(" <phrase> - <translated phrase>" + defTab + "add your phrases and words"), 
+                "addAll",
+                Set.of(
+                    " <number of phrases>" + defTab + "add all phraeses and words", 
+                    defTab + "same as add"),
+                "test", 
+                Set.of(
+                    " <number of tests>" + defTab + "activate tests", 
+                    " <number of tests> <mode>" + defTab + "activate tests in choosen mode (ru-eng, eng-ru)"), 
+                "exit",
+                Set.of(defTab + "end session and exit from program"),
+                "show",
+                Set.of(defTab + "print all words from all buckets")
+    ));
 
     void fillTable(File file) throws FileNotFoundException {
         buckets = new ArrayList<>();
@@ -113,8 +133,19 @@ public class WordCards {
                         scanner.close();
                         return new FailCommand("wrong number of tests");
                     }
-                    scanner.close();
-                    return new TestCommand(ntest);
+                    if (!scanner.hasNext()) {
+                        scanner.close();
+                        return new TestCommand(ntest);
+                    } else {
+                        String mode = scanner.next();
+                        if (!TestCommand.modeSet.contains(mode)) {
+                            scanner.close();
+                            return new FailCommand("unknown mode \"" + mode + "\"");
+                        } else {
+                            scanner.close();
+                            return new TestCommand(ntest, mode);
+                        }
+                    }
                 }
                 case 1: {
                     return add(scanner);
@@ -136,6 +167,10 @@ public class WordCards {
                     scanner.close();
                     return new AddAllCommand(nphrases);
                 }
+                case 5: {
+                    scanner.close();
+                    return new ShowCommand();
+                }
                 default: {
                     scanner.close();
                     return new FailCommand("unknown problem");
@@ -150,8 +185,10 @@ public class WordCards {
     void runCommand(Command cmd) throws UnsupportedEncodingException, FileNotFoundException {
         switch (cmd.getType()) {
             case 0: {
-                int ntest = ((TestCommand) cmd).getNumberOfTest();
-                test(ntest);
+                TestCommand tst = ((TestCommand) cmd);
+                int ntest = tst.getNumberOfTest();
+                String md = tst.getMode();
+                test(ntest, md);
                 break;
             }
             case 1: {
@@ -199,6 +236,10 @@ public class WordCards {
                 }
                 break;
             }
+            case 5: {
+                System.out.print(this);
+                break;
+            }
             case -1: {
                 FailCommand failcmd = (FailCommand) cmd;
                 System.out.println("command fail: " + failcmd.getMessage());
@@ -207,7 +248,7 @@ public class WordCards {
         }
     }
 
-    void test(int ntest) {
+    void test(int ntest, String mode) {
         Random r = new Random();
         while (ntest-- > 0) {
             int n = bucketNumber(r.nextDouble());
@@ -215,9 +256,13 @@ public class WordCards {
                 n = bucketNumber(r.nextDouble());
             }
             Translation tr = buckets.get(n).randomPair();
-            System.out.print("? " + tr.word + " - ");
+            if (mode.equals("eng-ru")) {
+                System.out.print("? " + tr.word + " - ");
+            } else {
+                System.out.print("? " + tr.randomTranslation() + " - ");
+            }
             String answer = userScanner.nextLine();
-            if (tr.checkAnswer(answer)) {
+            if (tr.checkAnswer(answer, mode.equals("ru-eng") ? 1 : 0)) {
                 System.out.println("\u001B[32mRight!\u001B[0m");
                 if (n > 0) {
                     buckets.get(n).delete(tr);
