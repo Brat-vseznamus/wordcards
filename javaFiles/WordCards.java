@@ -24,7 +24,7 @@ public class WordCards {
 
     static String tab = "   ";
     static String defTab = "\n" + tab.repeat(2) + "-- ";
-    static File input = new File("/home/fedor/Documents/sources/word_cards/resources", "words.txt");
+    static File input = new File("resources/english.txt");
 
     static Map<String, Integer> firstWordMap = new HashMap<>(
             Map.of(
