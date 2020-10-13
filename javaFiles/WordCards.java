@@ -111,8 +111,8 @@ public class WordCards {
         token = scanner.next();
         secondWords.append(token);
         while (scanner.hasNext()) {
-            fisrtWords.append(" ").append(token);
             token = scanner.next();
+            secondWords.append(" ").append(token);
         }
         scanner.close();
         return new AddCommand(fisrtWords.toString().toLowerCase(), secondWords.toString().toLowerCase());
