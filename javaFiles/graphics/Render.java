@@ -2,18 +2,27 @@ package javaFiles.graphics;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class Render extends JFrame {
     static int sizeWindowX = 1080;
     static int sizeWindowY = 720;
-
-    final Color PASTELEGREEN = new Color(63,206,87);
-    final Color PASTELERED = new Color(187,9,0);
-
+    Card card1 = new Card("a");
+    int i = 0;
     public Render(String title) throws HeadlessException {
         super(title);
-        Card card1 = new Card("undefined state");
+        JButton jb = new JButton("pip");
+        jb.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                card1.restart("a" + (++i));
+                // card1 = new Card("undefined state");
+                
+            }
 
+        });
+        getContentPane().add(jb, BorderLayout.SOUTH);
         getContentPane().add(card1);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();

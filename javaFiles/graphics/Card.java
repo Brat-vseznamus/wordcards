@@ -25,6 +25,7 @@ class Card extends JPanel implements ActionListener {
     double cosPh = 1;
     String word;
     BufferedImage bfimg; 
+    boolean end = false;
 
     public BufferedImage resize(int targetWidth, int targetHeight,
             BufferedImage src) {
@@ -61,6 +62,9 @@ class Card extends JPanel implements ActionListener {
 
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        if (end) {
+            return;
+        }
         boolean flip = ((90 + angle) / 180) % 2 == 0;
         size = cosPh * maxSizeX;
         sizeWithFrameX = cosPh * maxSizeWithFrameX;
@@ -115,14 +119,29 @@ class Card extends JPanel implements ActionListener {
         } else {
             timer.start();
         }
+        if (angle == 180) {
+            end = true;
+            repaint();
+            timer.stop();
+        }
         Toolkit.getDefaultToolkit().sync();
     }
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
+        // System.out.println(arg0);
         angle += incAngle;
         cosPh = Math.abs(Math.cos((2 * Math.PI * angle) / 360));
         repaint();
+    }
+
+    public void restart(String word) {
+        angle = 0;
+        circles = 0;
+        end = false;
+        this.word = word;
+        bfimg = createCardWithText(2 * (int) maxSizeX, 2 * maxSizeY,  word);
+        repaint(); 
     }
 
     public Card() {
